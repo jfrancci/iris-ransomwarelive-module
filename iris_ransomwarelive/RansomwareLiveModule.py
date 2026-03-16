@@ -12,11 +12,11 @@ import traceback
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import requests
+import requests # type: ignore
 
 try:
-    from iris_interface.IrisModuleInterface import IrisModuleInterface, IrisModuleTypes
-    import iris_interface.IrisInterfaceStatus as InterfaceStatus
+    from iris_interface.IrisModuleInterface import IrisModuleInterface, IrisModuleTypes # type: ignore
+    import iris_interface.IrisInterfaceStatus as InterfaceStatus # type: ignore
 except ImportError:
     # Fallback para testes
     class IrisModuleInterface:
@@ -254,8 +254,8 @@ class RansomwareLiveModule(IrisModuleInterface):
         self.log.info(f"[RL] Looking for ransomware_group in case {case_id}")
         
         try:
-            from app import db
-            from sqlalchemy import text
+            from app import db # type: ignore
+            from sqlalchemy import text # type: ignore
             import json
             
             # Busca diretamente na tabela cases usando SQL
@@ -345,8 +345,8 @@ class RansomwareLiveModule(IrisModuleInterface):
         added_count = 0
         
         try:
-            from app import db
-            from sqlalchemy import text
+            from app import db # type: ignore
+            from sqlalchemy import text # type: ignore
             
             # A estrutura da API é: {"client": "...", "group": "...", "iocs": {"sha256": [...], "btc": [...], ...}}
             if 'iocs' not in iocs_data or not isinstance(iocs_data['iocs'], dict):
@@ -798,10 +798,10 @@ class RansomwareLiveModule(IrisModuleInterface):
         self.log.info(f"[RL] Adding note: {title}")
         
         try:
-            from app import db
-            from app.models.models import Notes
+            from app import db # type: ignore
+            from app.models.models import Notes # type: ignore
             from datetime import datetime
-            from sqlalchemy import text
+            from sqlalchemy import text # type: ignore
             
             # Try to get or create a directory for Ransomware.live notes
             directory_id = None
