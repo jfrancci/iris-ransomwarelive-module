@@ -1,0 +1,315 @@
+═══════════════════════════════════════════════════════════
+  IRIS RANSOMWARE.LIVE MODULE - PROJECT STRUCTURE
+═══════════════════════════════════════════════════════════
+
+📦 Package Version: 3.3.1
+📅 Date: March 2026
+📄 License: Apache 2.0
+👤 Author: DFIR Team
+
+═══════════════════════════════════════════════════════════
+  DIRECTORY STRUCTURE
+═══════════════════════════════════════════════════════════
+
+iris-ransomwarelive-module/
+│
+├── 📄 README.md                    # Main documentation (English)
+├── 📘 USER_MANUAL.md              # Complete user manual (English)
+├── 📊 FLOWCHARTS.md               # Visual diagrams (English)
+├── 📝 CHANGELOG.md                # Version history
+├── 🚀 INSTALL.md                  # Quick installation guide
+├── 💡 EXAMPLES.md                 # Usage examples
+├── 🤝 CONTRIBUTING.md             # Contribution guidelines
+├── 📜 LICENSE                     # Apache 2.0 License
+├── 🔧 .gitignore                  # Git ignore rules
+├── ⚙️  setup.py                    # Python package setup
+├── 🏗️  pyproject.toml              # Build system config
+├── 🔨 buildnpush2iris.sh          # Installation script
+├── 📋 STRUCTURE.txt               # This file
+│
+├── 📁 iris_ransomwarelive/        # Python module
+│   ├── __init__.py                # Module initialization
+│   └── RansomwareLiveModule.py    # Main module code
+│
+└── 📁 docs/
+    └── 📁 pt-BR/                  # Portuguese documentation
+        ├── README.pt-BR.md
+        ├── USER_MANUAL.pt-BR.md
+        ├── FLOWCHARTS.pt-BR.md
+        ├── INSTALL.pt-BR.md
+        ├── EXAMPLES.pt-BR.md
+        └── CONTRIBUTING.pt-BR.md
+
+═══════════════════════════════════════════════════════════
+  FILE DESCRIPTIONS
+═══════════════════════════════════════════════════════════
+
+DOCUMENTATION (ROOT - ENGLISH):
+
+README.md
+  - Main project documentation
+  - Features overview
+  - Quick start guide
+  - Language navigation badges
+
+USER_MANUAL.md
+  - Complete installation guide (step-by-step)
+  - Configuration instructions
+  - Usage tutorials
+  - Troubleshooting section
+  - FAQ
+
+FLOWCHARTS.md
+  - 10 visual diagrams in Mermaid format
+  - System architecture
+  - Data flow diagrams
+  - Process flows
+  - All diagrams tested and working
+
+CHANGELOG.md
+  - Version history
+  - Release notes
+  - Breaking changes
+  - Bug fixes
+
+INSTALL.md
+  - Quick installation steps
+  - 3-step installation process
+  - Configuration snippet
+
+EXAMPLES.md
+  - Usage examples
+  - Code samples
+  - Integration examples
+  - API usage
+
+CONTRIBUTING.md
+  - How to contribute
+  - Coding standards
+  - Pull request process
+  - Bug reporting guidelines
+
+═══════════════════════════════════════════════════════════
+
+CONFIGURATION FILES:
+
+LICENSE
+  - Apache License 2.0
+  - Full license text
+  - Copyright notice
+
+.gitignore
+  - Python artifacts
+  - Build directories
+  - IDE configurations
+  - Temporary files
+
+setup.py
+  - Python package configuration
+  - Dependencies declaration
+  - Version: 3.3.1
+  - Python 3.8-3.13 support
+
+pyproject.toml
+  - Build system declaration
+  - Uses setuptools backend
+
+═══════════════════════════════════════════════════════════
+
+INSTALLATION:
+
+buildnpush2iris.sh
+  - Automatic installation script
+  - Version: 3.3.1
+  - Features:
+    ✓ Auto-detect IRIS directory
+    ✓ Install in worker and/or app containers
+    ✓ Auto-restart services
+    ✓ Comprehensive error handling
+    ✓ Ubuntu 22.04 and 24.04 support
+    ✓ Python 3.8-3.13 compatibility
+
+Usage:
+  ./buildnpush2iris.sh -ar
+
+Flags:
+  -a    Install in app container too
+  -r    Restart services after installation
+  -i    Specify custom IRIS directory
+  -h    Show help
+
+═══════════════════════════════════════════════════════════
+
+PYTHON MODULE:
+
+iris_ransomwarelive/
+  - Main Python package
+  - IRIS module interface implementation
+
+__init__.py
+  - Package initialization
+  - Version: 3.3.1
+  - Exports: RansomwareLiveModule
+
+RansomwareLiveModule.py
+  - Main module implementation
+  - Features:
+    ✓ Automatic case enrichment
+    ✓ Manual trigger support
+    ✓ API integration with Ransomware.live
+    ✓ IOC extraction and addition
+    ✓ Note creation with Markdown formatting
+    ✓ YARA rules integration
+    ✓ Ransom note samples
+    ✓ Group profile intelligence
+
+Hooks registered:
+  - on_manual_trigger_case
+  - on_manual_trigger_ioc
+  - on_postload_case_create
+  - on_postload_case_info_update
+
+═══════════════════════════════════════════════════════════
+
+PORTUGUESE DOCUMENTATION (docs/pt-BR):
+
+README.pt-BR.md
+  - Documentação principal em português
+  - Visão geral do projeto
+  - Guia de início rápido
+
+USER_MANUAL.pt-BR.md
+  - Manual completo do usuário
+  - Instalação passo a passo
+  - Configuração e uso
+  - Solução de problemas
+  - FAQ em português
+
+FLOWCHARTS.pt-BR.md
+  - 10 diagramas visuais
+  - Arquitetura do sistema
+  - Fluxos de dados
+  - Todos testados
+
+INSTALL.pt-BR.md
+  - Guia rápido de instalação
+  - 3 passos simples
+
+EXAMPLES.pt-BR.md
+  - Exemplos de uso
+  - Código de exemplo
+  - Integrações
+
+CONTRIBUTING.pt-BR.md
+  - Como contribuir
+  - Padrões de código
+  - Processo de PR
+
+═══════════════════════════════════════════════════════════
+  QUICK START
+═══════════════════════════════════════════════════════════
+
+1. EXTRACT THE ZIP FILE:
+   unzip iris-ransomwarelive-module.zip
+   cd iris-ransomwarelive-module
+
+2. COPY TO IRIS DIRECTORY:
+   cp -r . /opt/iris-web/iris-web_ransomwarelive/
+
+3. RUN INSTALLATION:
+   cd /opt/iris-web/iris-web_ransomwarelive
+   ./buildnpush2iris.sh -ar
+
+4. ENABLE IN IRIS:
+   - Navigate to: Advanced → Modules
+   - Find: Ransomware.live Enrichment
+   - Click: Enable
+
+5. CONFIGURE CUSTOM ATTRIBUTE:
+   - Go to: Advanced → Custom Attributes → Cases
+   - Add the JSON from INSTALL.md
+
+6. TEST:
+   - Create a case
+   - Fill "Ransomware group" field with: Akira
+   - Check Notes and IOC tabs
+
+═══════════════════════════════════════════════════════════
+  SUPPORTED PLATFORMS
+═══════════════════════════════════════════════════════════
+
+Operating Systems:
+  ✓ Ubuntu 22.04 LTS
+  ✓ Ubuntu 24.04 LTS
+
+Python Versions:
+  ✓ Python 3.8
+  ✓ Python 3.9
+  ✓ Python 3.10
+  ✓ Python 3.11
+  ✓ Python 3.12
+  ✓ Python 3.13
+
+IRIS Versions:
+  ✓ DFIR-IRIS v2.4.22 or higher
+
+Dependencies:
+  ✓ requests >= 2.28.0, < 3.0.0
+  ✓ iris-module-interface >= 1.2.0
+
+═══════════════════════════════════════════════════════════
+  SUPPORT & COMMUNITY
+═══════════════════════════════════════════════════════════
+
+🐛 Bug Reports:
+   GitHub Issues: https://github.com/jfrancci/iris-ransomwarelive-module/issues
+
+💬 Discussions:
+   GitHub Discussions: https://github.com/jfrancci/iris-ransomwarelive-module/discussions
+
+📖 Documentation:
+   Full docs: https://github.com/jfrancci/iris-ransomwarelive-module
+
+🎮 IRIS Discord:
+   Join: https://discord.gg/iris
+
+═══════════════════════════════════════════════════════════
+  CHANGELOG HIGHLIGHTS
+═══════════════════════════════════════════════════════════
+
+v3.3.1 (2024-11-03) - Current Release:
+  ✨ Full Ubuntu 24.04 and Python 3.13 support
+  🔧 Fixed hook name (critical bug fix)
+  📦 Enhanced installation script
+  📚 Complete bilingual documentation
+
+v3.2.0 (2024-10-06):
+  ✨ API key support
+  ✨ IOC automatic addition
+  ✨ Markdown formatting
+
+v2.5.0 (2024-09-29):
+  🎉 Initial public release
+
+═══════════════════════════════════════════════════════════
+
+For complete changelog, see CHANGELOG.md
+
+═══════════════════════════════════════════════════════════
+  LICENSE
+═══════════════════════════════════════════════════════════
+
+Apache License 2.0
+
+Copyright 2024 DFIR Team
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+
+See LICENSE file for full terms.
+
+═══════════════════════════════════════════════════════════
+
+Made the DFIR Community
+
+═══════════════════════════════════════════════════════════
