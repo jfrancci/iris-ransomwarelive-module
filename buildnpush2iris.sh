@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 # buildnpush2iris.sh - IRIS Ransomware.live Module Installer
-# Version: 3.3.1
+# Version: 3.3.2
 # Author: DFIR Team
 #
 
 set -e
 
 MODULE_NAME="iris_ransomwarelive"
-MODULE_VERSION="3.3.1"
+MODULE_VERSION="3.3.2"
 
 # Colors
 RED='\033[0;31m'
@@ -77,7 +77,10 @@ log_info "Using: $DOCKER_COMPOSE"
 # Auto-detect IRIS directory
 if [ -z "$IRIS_DIR" ]; then
     log_info "Auto-detecting IRIS installation directory..."
-    if [ -d "/opt/iris-web" ]; then
+    if [ -d "/opt/dfir-mesi/iris-web" ]; then
+        IRIS_DIR="/opt/dfir-mesi/iris-web"
+        log_info "Detected IRIS directory: $IRIS_DIR"
+    elif [ -d "/opt/iris-web" ]; then
         IRIS_DIR="/opt/iris-web"
         log_info "Detected IRIS directory: $IRIS_DIR"
     elif [ -d "/opt/dfir-iris" ]; then
@@ -98,9 +101,14 @@ if [ ! -d "$IRIS_DIR" ]; then
     exit 1
 fi
 
+# Count source lines (used later for verification)
+SOURCE_LINES=$(wc -l < iris_ransomwarelive/RansomwareLiveModule.py)
+log_info "Source file: ${SOURCE_LINES} lines"
+
 # Detect Python version in container
 log_info "Detecting Python version in container..."
 PY_VERSION=$(docker exec iriswebapp_worker /opt/venv/bin/python --version 2>/dev/null | cut -d' ' -f2 || echo "unknown")
+PY_MAJOR_MINOR_CONTAINER=$(echo "$PY_VERSION" | cut -d. -f1,2)
 log_info "Container Python version: $PY_VERSION"
 
 # Check build tools
@@ -156,6 +164,8 @@ fi
 # Clean previous builds
 log_info "Cleaning previous build artifacts..."
 rm -rf build/ dist/ *.egg-info
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 # Create setup.py if missing
 if [ ! -f "setup.py" ]; then
@@ -166,7 +176,7 @@ import os
 
 setup(
     name='iris_ransomwarelive',
-    version='3.3.1',
+    version='3.3.2',
     author='DFIR Team',
     author_email='neto@francci.net',
     description='DFIR-IRIS Ransomware.live Integration Module',
@@ -183,12 +193,6 @@ setup(
         'Intended Audience :: Information Technology',
         'Topic :: Security',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12',
-        'Programming Language :: Python :: 3.13',
     ],
 )
 EOFSETUP
@@ -207,6 +211,18 @@ log_success "✓ Build successful"
 WHEEL_FILE=$(ls dist/*.whl)
 log_info "Built: $(basename $WHEEL_FILE)"
 
+# Verify wheel contents before installing
+WHEEL_LINES=$(unzip -p dist/*.whl "*/RansomwareLiveModule.py" | wc -l)
+log_info "Wheel contains ${WHEEL_LINES} lines"
+
+if [ "$WHEEL_LINES" -ne "$SOURCE_LINES" ]; then
+    log_error "WHEEL MISMATCH: source=${SOURCE_LINES} lines, wheel=${WHEEL_LINES} lines"
+    log_error "Build produced incomplete wheel - aborting"
+    exit 1
+fi
+
+log_success "✓ Wheel verified: ${WHEEL_LINES} lines match source"
+
 # Function to install in container
 install_in_container() {
     local CONTAINER=$1
@@ -222,6 +238,9 @@ install_in_container() {
     fi
     
     log_info "Container ID: $CONTAINER_ID"
+    
+    # Clean previous /tmp/module in container
+    docker exec $CONTAINER_ID rm -rf /tmp/module/ 2>/dev/null || true
     
     # Copy wheel to container
     docker cp dist/ $CONTAINER_ID:/tmp/module/
@@ -242,6 +261,11 @@ $PY_BIN --version
 
 echo "[2/8] Removing previous installations..."
 $PIP_BIN uninstall -y ${MODULE_NAME} >/dev/null 2>&1 || true
+# Also remove site-packages directory to ensure clean slate
+PY_VER=$($PY_BIN -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+rm -rf /opt/venv/lib/python${PY_VER}/site-packages/${MODULE_NAME}/ 2>/dev/null || true
+rm -rf /opt/venv/lib/python${PY_VER}/site-packages/${MODULE_NAME}-*.dist-info/ 2>/dev/null || true
+rm -rf /opt/venv/lib/python${PY_VER}/site-packages/${MODULE_NAME}-*.egg-info/ 2>/dev/null || true
 
 echo "[3/8] Ensuring base tooling (setuptools/wheel)..."
 $PY_BIN -m pip install --no-cache-dir --upgrade pip >/dev/null 2>&1 || true
@@ -258,8 +282,8 @@ $PY_BIN -m pip install --no-cache-dir \
 echo "[6/8] Verifying iris-module-interface installation..."
 $PY_BIN -c "import iris_interface; print('✓ iris-module-interface OK')"
 
-echo "[7/8] Installing module wheel (no dependencies check)..."
-$PY_BIN -m pip install --no-cache-dir --no-deps /tmp/module/*.whl
+echo "[7/8] Installing module wheel..."
+$PY_BIN -m pip install --no-cache-dir --no-deps --force-reinstall /tmp/module/*.whl
 
 echo "[8/8] Verifying installation..."
 $PY_BIN -c "from iris_ransomwarelive.RansomwareLiveModule import RansomwareLiveModule; print('✓ Module OK')"
@@ -271,13 +295,48 @@ INSTALL_SCRIPT
     docker cp /tmp/${MODULE_NAME}_install.sh $CONTAINER_ID:/tmp/install.sh
     
     # Execute installation
-    if docker exec $CONTAINER_ID sh /tmp/install.sh; then
-        log_success "✓ $CONTAINER_NAME installation successful"
-        return 0
-    else
-        log_error "Installation failed in $CONTAINER_NAME"
+    if ! docker exec $CONTAINER_ID sh /tmp/install.sh; then
+        log_error "pip installation failed in $CONTAINER_NAME"
         return 1
     fi
+    
+    # =========================================================
+    # POST-INSTALL VERIFICATION: check line count matches source
+    # =========================================================
+    local PY_VER_CONTAINER
+    PY_VER_CONTAINER=$(docker exec $CONTAINER_ID /opt/venv/bin/python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+    local INSTALLED_PATH="/opt/venv/lib/python${PY_VER_CONTAINER}/site-packages/iris_ransomwarelive/RansomwareLiveModule.py"
+    
+    local CONTAINER_LINES
+    CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l < "$INSTALLED_PATH" 2>/dev/null || echo "0")
+    
+    log_info "Verification: source=${SOURCE_LINES} lines, container=${CONTAINER_LINES} lines"
+    
+    if [ "$CONTAINER_LINES" -ne "$SOURCE_LINES" ]; then
+        log_warn "LINE MISMATCH detected! pip installed truncated file (${CONTAINER_LINES} vs ${SOURCE_LINES})"
+        log_info "Applying docker cp fallback..."
+        
+        # Direct copy bypassing pip
+        docker cp iris_ransomwarelive/RansomwareLiveModule.py $CONTAINER_ID:"$INSTALLED_PATH"
+        docker exec $CONTAINER_ID rm -rf "$(dirname $INSTALLED_PATH)/__pycache__" 2>/dev/null || true
+        
+        # Re-verify
+        CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l < "$INSTALLED_PATH" 2>/dev/null || echo "0")
+        
+        if [ "$CONTAINER_LINES" -ne "$SOURCE_LINES" ]; then
+            log_error "docker cp fallback also failed! (${CONTAINER_LINES} vs ${SOURCE_LINES})"
+            return 1
+        fi
+        
+        log_success "✓ docker cp fallback successful (${CONTAINER_LINES} lines)"
+    else
+        log_success "✓ $CONTAINER_NAME installation verified (${CONTAINER_LINES} lines)"
+    fi
+    
+    # Clean __pycache__
+    docker exec $CONTAINER_ID find /opt/venv/lib/ -path "*/iris_ransomwarelive/__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    
+    return 0
 }
 
 # Install in worker (always)
@@ -330,23 +389,20 @@ Next steps:
    https://your-iris-server
 
 2. Navigate to modules
-   Advanced → Modules
+   Advanced → Modules → Add Module → and type: iris_ransomwarelive
 
-3. Enable the module
-   Find 'Ransomware.live' and click 'Enable'
-
-4. Configure the module (optional)
+3. Configure the module (optional)
    • API URL: https://api-pro.ransomware.live
    • Timeout: 30 seconds
 
 To test the module:
 
-1. Create a new case with ransomware_group custom field
+1. Create a new case with ransomware_group custom field (Summary → Manage → Ransomware Group)
 
-2. Or add an IOC of type 'ransomware-group' with value:
+2. And add an IOC of type 'ransomware-group' with value:
    lockbit
 
-3. Click: Modules → Ransomware.live → Run
+3. Click: Processors → iris_ransomwarelive::on_manual_trigger_case
 
 Troubleshooting:
 
@@ -357,6 +413,6 @@ Troubleshooting:
   docker exec iriswebapp_worker /opt/venv/bin/pip show iris_ransomwarelive
 
 • If module doesn't appear, restart worker:
-  cd /opt/iris-web && docker compose restart worker
+  cd /opt/dfir-mesi/iris-web && docker compose restart worker
 
 EOFSUCCESS

@@ -1,158 +1,189 @@
-# DFIR-IRIS Ransomware.live Module (Beta Version)
+# IrisRansomwareLive
 
-![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)
-![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
-![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
-![IRIS](https://img.shields.io/badge/IRIS-v2.4.22%2B-orange.svg)
+> DFIR-IRIS module for automatic case enrichment with [Ransomware.live](https://ransomware.live) threat intelligence.
 
-[![EN](https://img.shields.io/badge/lang-EN-blue.svg)](README.md)
-[![PT-BR](https://img.shields.io/badge/lang-PT--BR-green.svg)](docs/pt-BR/README.pt-BR.md)
-
-A powerful DFIR-IRIS module that automatically enriches ransomware incident cases with comprehensive threat intelligence from [Ransomware.live](https://ransomware.live/).
-
-## 🌐 Documentation Languages
-
-- 🇺🇸 **English** (you are here)
-- 🇧🇷 **[Português Brasileiro](docs/pt-BR/README.pt-BR.md)**
-
-## 🎯 Features
-
-- ✅ **Automatic Enrichment** - Enriches cases automatically when ransomware groups are detected
-- 📊 **Comprehensive Intelligence** - Fetches group profiles, statistics, and MITRE ATT&CK TTPs
-- 🎯 **IOC Collection** - Automatically adds 147+ indicators of compromise to case IOC tab
-- 📝 **Ransom Note Samples** - Access historical ransom note examples
-- 🛡️ **YARA Rules** - Detection rules for ransomware identification
-- 🔑 **API Key Support** - Enhanced access with optional API key authentication
-- 🎨 **Rich Markdown Formatting** - Professional, readable reports in case notes
-- ⚡ **Smart Execution** - Both manual and automatic enrichment modes
-- 🌐 **Dark Web Intelligence** - Monitors ransomware group infrastructure status
-
-## 📋 Requirements
-
-- **DFIR-IRIS** v2.4.22 or higher
-- **Python** 3.8+ (tested on 3.9, 3.12, 3.13)
-- **Ubuntu** 22.04 or 24.04 (recommended)
-- **Docker** and **Docker Compose**
-- Internet connectivity for API access
-
-## 📦 Quick Installation
-
-```bash
-# 1. Clone repository in DFIR-IRIS install folder
-cd /opt/iris-web
-git clone https://github.com/jfrancci/iris-ransomwarelive-module.git iris-web_ransomwarelive
-cd iris-web_ransomwarelive
-
-# 2. Install module
-chmod +x buildnpush2iris.sh 
-./buildnpush2iris.sh -ar
-
-or 
-
-./buildnpush2iris.sh -ar -i /opt/dfir-mesi/iris-web
-
-# 3. Enable in IRIS UI
-# Navigate to: Advanced → Modules → Add Module → iris_ransomwarelive
-```
-
-## ⚙️ Configuration
-
-Add this custom attribute in **Advanced → Custom Attributes → Cases**:
-
-```json
-{
-    "Ransomware Group": {
-        "ransomware_group": {
-            "type": "input_string",
-            "label": "Ransomware group",
-            "description": "Ransomware group name (e.g., Akira, LockBit, BlackBasta)",
-            "mandatory": false,
-            "value": ""
-        }
-    }
-}
-```
-
-## 🚀 Usage
-
-1. Create a case in IRIS
-2. Fill "Ransomware group" field with group name (e.g., `Akira`)
-3. Module automatically enriches the case with intelligence
-4. Check **Notes** tab for threat intelligence
-5. Check **IOC** tab for 147+ added indicators
-
-## 📊 Data Collected
-
-- **Group Profile**: Description, statistics, MITRE ATT&CK TTPs, dark web locations
-- **IOCs**: IP addresses, domains, hashes, emails, crypto wallets (auto-added to case)
-- **Ransom Notes**: Historical samples and patterns
-- **YARA Rules**: Detection signatures
-
-## 🦠 Supported Groups
-
-Akira, LockBit, Black Basta, ALPHV/BlackCat, Cl0p, RansomHub, Play, and 100+ more...
-
-See [Ransomware.live Groups](https://ransomware.live/#/group) for complete list.
-
-## 📚 Complete Documentation
-
-- 📘 **[User Manual](USER_MANUAL.md)** - Complete installation and usage guide
-- 📊 **[Flowcharts](FLOWCHARTS.md)** - 10 visual diagrams of module operation
-- 🚀 **[Installation Guide](INSTALL.md)** - Quick start guide
-- 💡 **[Usage Examples](EXAMPLES.md)** - Practical examples and code samples
-- 🤝 **[Contributing](CONTRIBUTING.md)** - Contribution guidelines
-- 📝 **[Changelog](CHANGELOG.md)** - Version history
-
-### Portuguese Documentation
-
-- 📘 **[Manual do Usuário](docs/pt-BR/USER_MANUAL.pt-BR.md)** - Guia completo em português
-- 📊 **[Fluxogramas](docs/pt-BR/FLOWCHARTS.pt-BR.md)** - Diagramas visuais
-- 🚀 **[Guia de Instalação](docs/pt-BR/INSTALL.pt-BR.md)** - Instalação rápida
-- 💡 **[Exemplos](docs/pt-BR/EXAMPLES.pt-BR.md)** - Exemplos práticos
-
-## 🔍 Troubleshooting
-
-**Module not appearing?**
-```bash
-docker compose restart app worker
-```
-
-**Installation failed?**
-```bash
-# Ubuntu 24.04: Install required packages first
-apt-get install -y python3-venv python3-build python3.12-venv
-./buildnpush2iris.sh -ar
-```
-
-**Check logs:**
-```bash
-docker logs iriswebapp_worker -f | grep '\[RL\]'
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## 📄 License
-
-Apache License 2.0 - See [LICENSE](LICENSE) file for details.
-
-## 🙏 Credits
-
-- **DFIR-IRIS Team** - For the amazing incident response platform
-- **Ransomware.live** - For providing the threat intelligence API
-- **Community Contributors** - For testing, feedback, and improvements
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/jfrancci/iris-ransomwarelive-module/issues)
-- **IRIS Discord**: [Join Discord](https://discord.gg/iris)
-- **Documentation**: [IRIS Docs](https://docs.dfir-iris.org/)
+[![Version](https://img.shields.io/badge/version-3.3.1-blue)](https://github.com/SEU-USUARIO/iris-ransomwarelive)
+[![IRIS Interface](https://img.shields.io/badge/IRIS%20interface-1.2.0-orange)](https://docs.dfir-iris.org)
+[![Python](https://img.shields.io/badge/python-3.10%2B-green)](https://www.python.org)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ---
 
-**Made with ❤️ by the DFIR Community**
+## Overview
 
-⭐ **Star this repository if you find it useful!**
+**IrisRansomwareLive** enriches DFIR-IRIS cases with real-time ransomware threat intelligence sourced from [Ransomware.live](https://ransomware.live). When triggered — automatically on case creation or manually on demand — the module fetches and registers in the case:
 
-[![GitHub stars](https://img.shields.io/github/stars/jfrancci/iris-ransomwarelive-module?style=social)](https://github.com/jfrancci/iris-ransomwarelive-module)
+- 📋 **Group profile** — description, TTPs, statistics (victims, first/last seen)
+- 🔑 **IOCs** — MD5/SHA256 hashes tagged `ransomware-live`
+- 📝 **Ransom notes** — sample ransom note content
+- 🛡️ **YARA rules** — detection rules for the ransomware family
+- 📊 **Custom attributes** — `ransomware_group` field populated in the Case Summary
+
+---
+
+## Requirements
+
+| Requirement | Version |
+|---|---|
+| DFIR-IRIS | 2.4.x |
+| Python (inside `iriswebapp_worker`) | 3.10+ |
+| Ransomware.live API | Public (free) or Pro |
+
+---
+
+## Installation
+
+### 1. Install the pip package inside the IRIS worker container
+
+```bash
+docker exec iriswebapp_worker \
+  /opt/venv/bin/pip install iris_ransomwarelive
+```
+
+### 2. Register the module in IRIS
+
+Navigate to **Advanced → Modules → Add Module** and enter:
+
+```
+iris_ransomwarelive
+```
+
+Click **Validate module**.
+
+![Add module dialog in IRIS showing iris_ransomwarelive typed in the module name field](docs/images/01-add-module.png)
+
+After validation, **IrisRansomwareLive v3.3.1** will appear in the modules list with a green active indicator:
+
+![Modules management table showing IrisRansomwareLive v3.3.1 as the only active module (green checkmark)](docs/images/02-modules-list.png)
+
+### 3. Configure the module (optional)
+
+Click the module name → **Module Information**. Available settings:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `API URL` | `https://api.ransomware.live` | Ransomware.live API endpoint |
+| `API Key` | *(empty)* | Pro API key for enhanced rate limits |
+| `Request Timeout` | `30` | HTTP timeout in seconds |
+| `Auto Enrichment` | `True` | Enrich automatically on case creation |
+
+To set a Pro API key, click the **API Key** field:
+
+![Update API Key dialog for IrisRansomwareLive showing a sensitive_string input field](docs/images/03-configure-api-key.png)
+
+> **Note:** The API key is optional. The public API works without authentication, but has lower rate limits.
+
+---
+
+## Usage
+
+### Setting up a case for enrichment
+
+The module reads the `ransomware_group` custom attribute to identify the ransomware family to query. Set it via **Summary → Manage → Ransomware Group**:
+
+![Case #17 manage dialog with the Ransomware Group tab showing "Akira" filled in the ransomware_group field](docs/images/04-case-ransomware-group.png)
+
+### Manual trigger
+
+With the group name set, click **Processors → `iris_ransomwarelive::on_manual_trigger_case`**:
+
+![Case summary page showing the Processors dropdown with iris_ransomwarelive::on_manual_trigger_case option highlighted](docs/images/05-manual-trigger.png)
+
+### Results: IOCs enriched
+
+After enrichment, the case IOC tab is populated with hashes from Ransomware.live, all tagged with `ransomware`, the group name, and `ransomware-live`:
+
+![IOC list showing multiple MD5 hashes from Ransomware.live for Akira, each tagged with ransomware, Akira, and ransomware-live](docs/images/06-iocs-enriched.png)
+
+### Results: Group profile note
+
+A note titled **Ransomware.live: \<GROUP\> Profile** is created under the **Ransomware details** directory, containing the group description, statistics, and MITRE ATT&CK TTPs:
+
+![Notes panel showing Ransomware.live: AKIRA Profile note with group description, victim statistics (1370 victims), first/last seen dates, and MITRE ATT&CK TTPs section](docs/images/07-akira-profile-note.png)
+
+The **Ransomware details** note directory also contains:
+- `Ransomware.live: <GROUP> IOCs`
+- `Ransomware.live: <GROUP> Ransom Notes`
+- `Ransomware.live: <GROUP> YARA Rules`
+
+---
+
+## Automatic enrichment
+
+When `Auto Enrichment` is enabled (default), the module is triggered automatically whenever a new case is created — no manual intervention required. The `ransomware_group` field must be populated at case creation time (e.g. by the `custom-iris.py` Wazuh integration script).
+
+---
+
+## Troubleshooting
+
+**Module doesn't appear after validation:**
+```bash
+# Restart the worker container
+cd /opt/dfir-mesi/iris-web && docker compose restart worker
+```
+
+**Enrichment returns no data:**
+```bash
+# Check worker logs (filter for RansomwareLive output)
+docker logs iriswebapp_worker --tail 50 | grep '\[RL\]'
+```
+
+**Verify the installed package version:**
+```bash
+docker exec iriswebapp_worker \
+  /opt/venv/bin/pip show iris_ransomwarelive
+```
+
+**API rate limit errors:**
+- Obtain a Pro API key from [Ransomware.live](https://ransomware.live) and configure it in the module settings (see [Configuration](#3-configure-the-module-optional)).
+
+---
+
+## Post-installation checklist
+
+After completing the steps above, verify:
+
+```
+═══════════════════════════════════════════════════════
+              Installation Completed!                   
+═══════════════════════════════════════════════════════
+
+Next steps:
+
+1. Open IRIS web interface
+   https://your-iris-server
+
+2. Navigate to modules
+   Advanced → Modules → Add Module → and type: iris_ransomwarelive
+
+3. Configure the module (optional)
+   • API URL: https://api-pro.ransomware.live
+   • Timeout: 30 seconds
+
+To test the module:
+
+1. Create a new case with ransomware_group custom field
+   (Summary → Manage → Ransomware Group)
+
+2. Add an IOC of type 'ransomware-group' with value:
+   lockbit
+
+3. Click: Processors → iris_ransomwarelive::on_manual_trigger_case
+
+Troubleshooting:
+
+• Check module logs:
+  docker logs iriswebapp_worker --tail 50 | grep '[RL]'
+
+• Verify module status:
+  docker exec iriswebapp_worker /opt/venv/bin/pip show iris_ransomwarelive
+
+• If module doesn't appear, restart worker:
+  cd /opt/dfir-mesi/iris-web && docker compose restart worker
+```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
