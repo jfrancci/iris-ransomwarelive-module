@@ -308,7 +308,7 @@ INSTALL_SCRIPT
     local INSTALLED_PATH="/opt/venv/lib/python${PY_VER_CONTAINER}/site-packages/iris_ransomwarelive/RansomwareLiveModule.py"
     
     local CONTAINER_LINES
-    CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l < "$INSTALLED_PATH" 2>/dev/null || echo "0")
+    CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l "$INSTALLED_PATH" 2>/dev/null | awk '{print $1}' || echo "0")
     
     log_info "Verification: source=${SOURCE_LINES} lines, container=${CONTAINER_LINES} lines"
     
@@ -321,7 +321,7 @@ INSTALL_SCRIPT
         docker exec $CONTAINER_ID rm -rf "$(dirname $INSTALLED_PATH)/__pycache__" 2>/dev/null || true
         
         # Re-verify
-        CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l < "$INSTALLED_PATH" 2>/dev/null || echo "0")
+        CONTAINER_LINES=$(docker exec $CONTAINER_ID wc -l "$INSTALLED_PATH" 2>/dev/null | awk '{print $1}' || echo "0")
         
         if [ "$CONTAINER_LINES" -ne "$SOURCE_LINES" ]; then
             log_error "docker cp fallback also failed! (${CONTAINER_LINES} vs ${SOURCE_LINES})"
