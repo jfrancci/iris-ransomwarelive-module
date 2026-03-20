@@ -33,14 +33,46 @@
 
 ## Installation
 
-### 1. Install the pip package inside the IRIS worker container
+### 1. Clone the repository and run the install script
+
+> **Ubuntu prerequisite:** the install script requires `unzip`. Install it before proceeding:
+> ```bash
+> sudo apt-get install -y unzip
+> ```
 
 ```bash
-docker exec iriswebapp_worker \
-  /opt/venv/bin/pip install iris_ransomwarelive
+# Clone the repository
+git clone https://github.com/jfrancci/iris-ransomwarelive-module.git \
+  /opt/dfir-mesi/iris-ransomwarelive
+
+# Set permissions
+chmod +x /opt/dfir-mesi/iris-ransomwarelive/buildnpush2iris.sh
+
+# Run the install script
+cd /opt/dfir-mesi/iris-ransomwarelive && ./buildnpush2iris.sh -ar
 ```
 
-### 2. Register the module in IRIS
+### 2. Add the custom attribute in IRIS
+
+Navigate to **Advanced → Custom Attributes → Cases** and add the following JSON under **Case Attributes**:
+
+```json
+{
+    "Ransomware Group": {
+        "ransomware_group": {
+            "type": "input_string",
+            "label": "Ransomware group",
+            "description": "Ransomware group name (e.g., Akira, LockBit, BlackBasta)",
+            "mandatory": false,
+            "value": ""
+        }
+    }
+}
+```
+
+This field is read by the module to identify which ransomware group to query on Ransomware.live.
+
+### 3. Register the module in IRIS
 
 Navigate to **Advanced → Modules → Add Module** and enter:
 
@@ -56,7 +88,7 @@ After validation, **IrisRansomwareLive v3.3.1** will appear in the modules list 
 
 ![Modules management table showing IrisRansomwareLive v3.3.1 as the only active module (green checkmark)](docs/images/02-modules-list.png)
 
-### 3. Configure the module (optional)
+### 4. Configure the module (optional)
 
 Click the module name → **Module Information**. Available settings:
 
@@ -135,7 +167,7 @@ docker exec iriswebapp_worker \
 ```
 
 **API rate limit errors:**
-- Obtain a Pro API key from [Ransomware.live](https://ransomware.live) and configure it in the module settings (see [Configuration](#3-configure-the-module-optional)).
+- Obtain a Pro API key from [Ransomware.live](https://ransomware.live) and configure it in the module settings (see [Configuration](#4-configure-the-module-optional)).
 
 ---
 
@@ -181,6 +213,12 @@ Troubleshooting:
 • If module doesn't appear, restart worker:
   cd /opt/dfir-mesi/iris-web && docker compose restart worker
 ```
+
+---
+
+## Integration with DFIR-MESI
+
+This module is part of the [DFIR-MESI](https://dfirmesiproject.com) platform. When the `custom-iris.py` Wazuh integration creates a case automatically, the `ransomware_group` field is populated from the alert data, and `IrisRansomwareLive` enriches the case immediately — providing the analyst with threat intelligence before they even open the case.
 
 ---
 
